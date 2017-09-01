@@ -1,0 +1,77 @@
+Linear running time for a selection problem
+
+How do you solve the selection problem in _deterministic_ linear time?
+How do you prove that no sort can be better than n(log(n))?
+
+Selection problem: given an array A with n distinct numbers and a number 1 <= i
+<= n
+
+Output: ith order statistic (i.e. ith smallest element of input array)
+
+Fact: you can never sort an array faster than O(n log n)
+
+
+RSelect(array A, length n, order statistic i)
+0: if n=1 return A[1]
+1: choose pivot p from A uniformly at random
+2: partiion A around p
+3: Let j be the order statistic that p is, / new index of p
+
+4a: Case i=j, O(n) time. Great! Of course, (1/n) chance
+4b: If j>i, RSelect(1st part of A, j-1, i)
+4c: If j<1, return RSelect(Right part of A, n-j, i-j)
+
+
+Notation: Rselect is in phasej if current array size is between (3/4)^j+1 * n
+and (3/4)^j * n
+
+Xj = number of recursive calls during phase j
+
+Note: runnign time of RSelect <= 
+
+To analyse the expectation of Xj:
+
+NOTE: if Rselect chooses a pivot giving a 25-75 split (or better), then current
+phase MUST end (because the new subarray is at most 75% of the old length)
+
+Recall: the probability of 25-75 split or better is 50%.
+
+Hence, we can reduce this 
+E(X) <= expected number of times you need to flip a fair coin to get a heads
+
+(heads == good pivot, tails == bad pivot)
+
+It's obvious to see that the expected number of heads is 1/2 for one flip
+
+Let N be the number of coin flips to get a first heads
+E[N] = 1 + 1/2* E[N]
+E[N] = 1 + 1/2 + 1/4 + ..... = 2
+
+On average, you need to flip 2 times to get one heads;
+in other words, the number of recursive calls during one phase j (X) is 2
+
+How many phases j are there? This is the final piece
+
+Well, 1 + 3/4 + (3/4)^2 + ... => (1/(1-3/4)) = 4
+<= 8CN, which is O(n); QED
+
+(Reprove this in 2 days, given Xj and phase j = 3/4^j+1 *n and 3/4^j *n)
+
+"median of medians" used in Deterministic Choose Pivot:
+0. logically break A into n/5 groups of size 5 each
+1. sort each group (e.g. using MergeSort)
+2. copy n/5 medians into new array C
+3. recursively compute the median of C (!!!) -> 5 medians of n/25 groups
+4. return this as pivot
+
+
+
+Recursive call:
+T(n)= (1)Tn(n/5) + O(n)
+a = 1, b = 5, d=1
+Plugging in the master method, this runs in O(n) time
+
+DSelectTheorem: for every input array of length n, DSelect runs in O(n) time.
+Warning: not as good as RSelect in practice; worse constants and not-in-place
+
+
