@@ -26,6 +26,7 @@ Dijkstra's algorithm works as follows:
 
 import argparse
 
+#vertices = [[]] * 201
 vertices = [[]]
 dist = [1000000]
 discovered_vertices = []
@@ -45,49 +46,25 @@ def read_file(file_name):
             for edge in edges[1:]:
                 if (edge.strip() is not ''):
                     vertices[index+1].append([int(y) for y in edge.strip().split(",")])
-            print(index+1, ":", vertices[index+1])
+            #print(index+1, ":", vertices[index+1])
+
+    for (source_vertex, edges) in enumerate(vertices):
+        for edge in edges:
+            print(edge)
+            if (edge[0] == source_vertex):
+                pass
+            # edge[0] => source vertex, edge[1] is distance,
+            # index => destination vertex
+            else:
+                vertices[edge[0]].append([source_vertex, edge[1]]) 
+
     dist[args.start] = 0 # dist from source vertex to source vertex is always 0
     #print(dist)
     discovered_vertices.append(int(args.start))
-    '''
     for index, vertex in enumerate(vertices):
         print(index, ':', vertex)
-    '''
-
-def main():
-    for j in range(num_vertices):
-# Get all edges that cross the frontier: that is, all edges that belong to
-# vertices in discovered_vertices
-        [shortest_vert, shortest] = [0, 1000000]
-        # Iterate over each possible vertex in the frontier
-        print('=================')
-        #print("explored vertices:", discovered_vertices)
-        for i in discovered_vertices: # Each vertex is a integer
-            vertex = vertices[i]
-            for edge in vertex:
-                (new_vert, distance) = edge
-                (new_vert, distance) = (int(new_vert), int(distance))
-                d = distance
-                # Add the distance of the source vertex
-                distance += dist[i] # Now distance = s->v + v->w
-                # Make sure it's not a repeat (i.e. ensure not already inside
-                # discovered)
-                if (new_vert not in discovered_vertices):
-                # Check to see if there's a nearer s->w
-                    if (dist[new_vert] > distance):
-                        dist[new_vert] = distance
-                    print('now looking at', i, '->', edge)
-                    print('DGS:', i, '->', new_vert, ':', distance, "=",
-                          dist[i], "+", d)
-                    print('---')
-                    if (shortest > distance):
-                        shortest_vert = new_vert
-                        shortest = distance
-            # Add the shortest vertex to the region
-        print("best greedy score and node:", shortest, shortest_vert)
-        if (shortest_vert is not 0):
-            discovered_vertices.append(shortest_vert)
-    return(dist)
+    #print(dist)
+#print(len(dist))
 
 
 def dijkstra():
@@ -106,7 +83,8 @@ def dijkstra():
     [ [8, 392], [80, 4930], [157, 2246] .... ] where the first value is the
     destination vertex and the second value is the distance
     '''
-    while (len(undiscovered_vertices) != 0):
+    num_undiscovered = len(undiscovered_vertices)
+    while (num_undiscovered > 0):
         # vertices are 1-indexed, so 0 is a placeholder vertex
         shortest_vertex = 0
         # get the shortest length in u_d
@@ -117,16 +95,17 @@ def dijkstra():
         # remove shortest_vertex from undiscovered
         idx = undiscovered_vertices.index(shortest_vertex)
         undiscovered_vertices.pop(idx)
+        num_undiscovered -= 1
 
         # iterate over each of shortest_vertex's neighbours
         for [new_vert, new_dist] in vertices[shortest_vertex]:
             new_dist = new_dist + dist[shortest_vertex]
-            if (dist[new_vert] > new_dist):
+            if (new_dist < dist[new_vert]):
                 dist[new_vert] = new_dist
 
         out = dist
-        print([out[7], out[37], out[59], out[82], out[99], out[115],
-               out[133], out[165], out[188], out[197]])
+        #print([out[7], out[37], out[59], out[82], out[99], out[115],
+        #       out[133], out[165], out[188], out[197]])
     return(dist)
 
 parser = argparse.ArgumentParser(description="Computes Dijkstra's algorithm \
@@ -142,4 +121,4 @@ if __name__ == "__main__":
     out = dijkstra()
     print([out[7], out[37], out[59], out[82], out[99], out[115],
            out[133], out[165], out[188], out[197]])
-    print(out)
+    #print(out)

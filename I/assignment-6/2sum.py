@@ -104,21 +104,27 @@ if __name__ == "__main__":
         if (s < MIN):
             while (s < MAX):
                 l += 1
+                if (l == r):
+                    break
                 s = numbers[l] + numbers[r]
-                if (s > MIN and s < MAX):
+                if (s >= MIN and s <= MAX):
                     sums[s+10000] = True
             # While loop finishes; reset left pointer 
             left = left+1
         elif (s > MAX):
             while (s > MIN):
                 r -= 1
+                if (l == r):
+                    break
                 s = numbers[l] + numbers[r]
                 if (s > MIN and s < MAX):
                     sums[s+10000] = True
             right = right - 1
         else:
-            while ((s > MIN) and (s < MAX)):
+            while ((s >= MIN) and (s <= MAX)):
                 l += 1
+                if (l == r):
+                    break
                 s = numbers[l] + numbers[r]
                 sums[s+10000] = True
         t2 = time.time()
