@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <vector>
 #include <queue>
+#include <array>
 
 /** 
  * In this programming problem and the next you'll code up the clustering
@@ -29,64 +30,88 @@
 // Keep a count of number of clusters;
 // Repeat until there are only 4 clusters left.
 
+typedef std::array<int, 3> edge;
+
+// This function, when run on a vertex v, guarantees that it and all its parents
+// will point to its root leader.
+void compress(std::array <int, 1000> leaders, int v) {
+    std::vector<int> vs_to_update;
+    int curr_v = v;
+
+    // Walk up the vertex tree until we find the leader (vert points to itself)
+    while(leaders[curr_v] != curr_v) {
+        vs_to_update.push_back(curr_v);
+        curr_v = leaders[curr_v];
+    }
+
+    // Now compress all vertices
+    for (auto &w : vs_to_update) {
+        leaders[w] = curr_v;
+    }
+}
+
 int main() {
     const int target_clusters = 4;
     int num_clusters = 0;
     int num_vertices = 0;
-    long long int max_spacing;
+
     int source;
     int end;
     int dist;
-    std::array<int, 1000> leaders;
-    //std::vector< std::array<int, 3> > edges;
-    std::priority_queue< std::array<int, 3>, 
-        fn(std::array<int,3>, std::array<int,3>) { return a[2] < b[2];}
-    > edges;
+
+    int max_dist;
+    std::array <int, 1000> leaders;
+
+    auto cmp = [](edge a, edge b) { return (a[2] > b[2]); };
+
+    std::priority_queue <
+        edge,
+        std::vector<edge>,
+        decltype(cmp)
+    > edges(cmp);
 
     std::cin >> num_vertices;
 
     while(std::cin) {
         std::cin >> source >> end >> dist;
+        std::cout << source << " " << end << " " << dist << std::endl;
         edges.push({source, end, dist});
         leaders[source] = source;
         num_clusters++;
     }
 
-    while(num_clusters > target_clusters) {
-        std::cout << edges.top() << std::endl;
-        end = edges.top()[1]; 
-        leaders[edges.top()[0]] = end;
-        // Point to new leader
+    // Why >= ? Because we want to stop at the node that brings it from
+    // four clusters to three, as that's the maximum distance between
+    // vertices that's not in a cluster.
 
-        // Check if there's a decrease in clusters
-        // How?
-        // There should always be a decrease in clusters.
-        // Consider the node N; it's always in a cluster.
-        // What about an edge that's already in the cluster and forms a cycle?
-        // In every r
-        // Walk up until we find a reflexive vertex V that points to itself
-        // Then point V to the destination vertex
+    while(num_clusters >= target_clusters) {
 
-        std::array<int, 3> current_v;
-        std::vector<int> edges_to_update;
-        while(leaders[current_v[0]] != current_v[0] ) {
-            edges_to_update.push_back(current_v[0]);
-            // Walk up to the next vertex new leader
-            current_v = edges[current_v[1]];
+        for (const auto &e : edges.top()) {
+            std::cout << e << std::endl;
         }
-        // When all done, update all vertices to point to new leader
-        for (auto &v : edges_to_update) {
-            leaders[v[0]] = end;
-        }
+        source = edges.top()[0];
+        end = edges.top()[1];
+        dist = edges.top()[2];
 
-        // Number of clusters don't always decrease due to presence of cycles
-        // After having walked the vertices, if we realise that the leader node
-        // is already the desired end node, then it was a cycle.
-        
-        if (!cycle) {
+        edges.pop();
+
+        // Compress END: now guaranteed it points to LEADER(END)
+        compress(leaders, end);
+        // Compress SOURCE
+        compress(leaders, source);
+
+        // Now we have a guarantee that source and end both point to root leader
+        // By comparing the source's leader to the end's leader, we can tell if
+        // they are already in the same cluster.
+        // if they are not identical, point the source leader to end leader, clusters--
+
+        if (leaders[source] != leaders[end]) {
+            leaders[source] = leaders[end];
+            max_dist = dist;
             num_clusters--;
         }
     }
 
-    return max_spacing;
+    return max_dist;
 }
+
