@@ -45,7 +45,8 @@ void compress(std::array <int, 1000> leaders, int v) {
     }
 
     // Now compress all vertices
-    for (auto &w : vs_to_update) {
+    for (auto w : vs_to_update) {
+        std::cout << "Vertex: " << w << std::endl;
         leaders[w] = curr_v;
     }
 }
@@ -84,11 +85,9 @@ int main() {
     // four clusters to three, as that's the maximum distance between
     // vertices that's not in a cluster.
 
-    while(num_clusters >= target_clusters) {
+    while (num_clusters >= target_clusters) {
+        std::cout << "Number of clusters: " << num_clusters << std::endl;
 
-        for (const auto &e : edges.top()) {
-            std::cout << e << std::endl;
-        }
         source = edges.top()[0];
         end = edges.top()[1];
         dist = edges.top()[2];
@@ -96,8 +95,10 @@ int main() {
         edges.pop();
 
         // Compress END: now guaranteed it points to LEADER(END)
+        std::cout << "Compressing leader..." << std::endl;
         compress(leaders, end);
         // Compress SOURCE
+        std::cout << "Compressing source..." << std::endl;
         compress(leaders, source);
 
         // Now we have a guarantee that source and end both point to root leader
@@ -114,4 +115,6 @@ int main() {
 
     return max_dist;
 }
+
+
 
