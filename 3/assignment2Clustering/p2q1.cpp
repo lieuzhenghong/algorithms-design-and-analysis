@@ -122,14 +122,6 @@ int main() {
 		*/
         compress(leaders, source);
 
-		/*
-		std::cout << "leaders after source compression: " << std::endl;
-		for (int i = 1; i < num_vertices+1; i++) {
-			std::cout << leaders[i] << " ";
-		}
-		std::cout << std::endl;
-		*/
-
         // Now we have a guarantee that source and end both point to root leader
         // By comparing the source's leader to the end's leader, we can tell if
         // they are already in the same cluster.
@@ -139,19 +131,12 @@ int main() {
             leaders[leaders[source]] = leaders[leaders[end]];
             max_dist = dist;
             num_clusters--;
-			/*
-			for (int i = 1; i < num_vertices+1; i++) {
-			std::cout << leaders[i] << " ";
-			}
-			std::cout << std::endl;
-			*/
         }
     }
 
 	std::cout << "Max distance: " << max_dist << std::endl;
 	std::chrono::steady_clock::time_point t_end= std::chrono::steady_clock::now();
 	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(t_end - begin).count() <<std::endl;
-	//std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (t_end - begin).count() <<std::endl;
     return max_dist;
 }
 
