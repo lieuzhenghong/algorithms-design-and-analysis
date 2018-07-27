@@ -56,6 +56,7 @@ void compress(std::array <int, MAX_VERTS>& leaders, int v) {
 }
 
 int main() {
+    std::ios_base::sync_with_stdio(false); 
     const int target_clusters = 4;
     int num_clusters = 0;
     int num_vertices = 0;
