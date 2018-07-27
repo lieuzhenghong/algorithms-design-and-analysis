@@ -1,4 +1,4 @@
-package testCases.course3.assignment4Knapsack;
+package testCases.course4.assignment4TwoSat;
 
 import utility.AbstractTestCaseGenerator;
 import utility.ClassCaller;
@@ -11,16 +11,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * An test case generator for course3 assignment4Knapsack.
+ * An test case generator for course4 assignment42Sat.
  *
  * <p>Using this class's main method should be parameter driven. The convention is as follows:
  *
- * <p>java testCases.course3.assignment4Knapsack.question1 [method to call] [solver class] {[args to
- * method]}
+ * <p>java testCases.course4.assignment4TwoSat [method to call] [solver class] {[args to method]}
  *
  * <p>The [solver class] is used to ensure that test cases with unique solutions are produced.
  */
@@ -42,54 +42,51 @@ public class TestCaseGenerator extends AbstractTestCaseGenerator {
   }
 
   /**
-   * Generates 4 example files for each (size, n) pair.
+   * Creates 2 unique test case files for each of the specified problem sizes.
    *
-   * <p>The values and weights both have a maximum value of (size/2). 
+   * <p>The problem size defines the number of variables.
    *
    * @param solverMainMethod the main method that gives a solution with the given file
-   * @param args an array of (size, n) pairs
+   * @param args the filenameStartingIndex, followed by an array of problem sizes
    */
-  public static void random(Method solverMainMethod, String[] args) {
+  public void beaunus(Method solverMainMethod, String[] args) {
     int filenameStartingIndex = Integer.parseInt(args[0]);
 
+    // Iterate through the command line arguments
     int argPointer = 1;
     while (argPointer < args.length) {
 
-      // Read arguments into variables.
-      int size = Integer.parseInt(args[argPointer++]);
-      int numberOfItems = Integer.parseInt(args[argPointer++]);
-
-      System.out.println(
-          "Processing (size, numberOfItems) => (" + size + ", " + numberOfItems + ")");
+      System.out.println("Processing problem size => " + args[argPointer]);
+      int numVariables = Integer.parseInt(args[argPointer++]);
 
       // A set of solutions.
       // Used to ensure 4 unique test case files are generated.
       HashSet<String> solutions = new HashSet<String>();
 
-      while (solutions.size() < 4) {
-        int[] values = new int[numberOfItems];
-        int[] weights = new int[numberOfItems];
-        int maxValue = size / 2;
-        int maxWeight = size / 2;
+      while (solutions.size() < 2) {
 
         // Initialize the list of file lines
         ArrayList<String> lines = new ArrayList<String>();
 
-        // Add the first line to lines.
-        lines.add(size + " " + numberOfItems);
+        lines.add("" + numVariables);
 
-        // Generate a random set of weights and values
-        // The "+1" ensures that 0 is excluded from the possibilities.
-        for (int i = 0; i < numberOfItems; i++) {
-          values[i] = ThreadLocalRandom.current().nextInt(maxValue) + 1;
-          weights[i] = ThreadLocalRandom.current().nextInt(maxWeight) + 1;
-          lines.add(values[i] + " " + weights[i]);
+        for (int i = 1; i <= numVariables; i++) {
+          int literal1 = ThreadLocalRandom.current().nextInt(numVariables) + 1;
+          int literal2 = ThreadLocalRandom.current().nextInt(numVariables) + 1;
+          // randomly negate each variable.
+          if (ThreadLocalRandom.current().nextBoolean()) {
+            literal1 *= -1;
+          }
+          if (ThreadLocalRandom.current().nextBoolean()) {
+            literal2 *= -1;
+          }
+          lines.add(literal1 + " " + literal2);
         }
 
-        // Create the filename for the test case input file.
-        String inputFilename = "input_random_" + filenameStartingIndex;
-        inputFilename += "_" + size;
-        inputFilename += "_" + numberOfItems;
+        // Create the filename for the test case.
+        String inputFilename = "input_beaunus";
+        inputFilename += "_" + filenameStartingIndex;
+        inputFilename += "_" + numVariables;
         inputFilename += ".txt";
 
         // Write the input file.
@@ -100,15 +97,15 @@ public class TestCaseGenerator extends AbstractTestCaseGenerator {
           exception.printStackTrace();
         }
 
-        // Obtain the solution
         String[] filenames = {inputFilename};
+
         String solution = ClassCaller.callMethod(solverMainMethod, filenames);
 
-        // create a file for this solution only if it is a unique solution.
+        // create an output file for this solution only if it is a unique solution.
         if (!solutions.contains(solution)) {
           // Add this solution to the set of solutions so far.
           solutions.add(solution);
-          generateOutputFile(inputFilename, solution);
+          AbstractTestCaseGenerator.generateOutputFile(inputFilename, solution);
           System.out.println("\t" + solutions.size() + " unique file(s) generated.");
           filenameStartingIndex++;
         }
