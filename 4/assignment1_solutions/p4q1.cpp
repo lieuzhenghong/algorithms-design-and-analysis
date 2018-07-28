@@ -61,10 +61,6 @@ int costs[3000][3000] {INT_MAX};
 //double costs[3000][3000] {std::numeric_limits<double>::infinity()};
 std::map<int, vector_of_edges> all_edges;
 
-bool compLength(edge a, edge b) {
-    return (a.cost < b.cost);
-}
-
 edge bellmanFord(int vertex_source) {
 
     for (int i = 0; i < 3000; i++) {
@@ -172,7 +168,7 @@ int main() {
 
     // Let's sort these edges so the lowest-cost is always at the front
     for (int v = 1; v < num_vertices+1; v++) {
-        std::sort(all_edges[v].begin(), all_edges[v].end(), compLength);
+        std::sort(all_edges[v].begin(), all_edges[v].end(), [](edge a, edge b) {return a.cost < b.cost; });
     }
 
     // We run Bellman-Ford's algorithm n times to final the shortest pair ever
