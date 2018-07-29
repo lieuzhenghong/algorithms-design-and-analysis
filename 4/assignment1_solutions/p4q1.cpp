@@ -166,6 +166,12 @@ int main() {
         //std::cout << e[0] << " " << e[1] << " " << e[2] << std::endl;
     }
 
+
+    // Also, let's push 0-cost edges to every vertex
+    for (int v = 0; v < num_vertices+1; v++) {
+        all_edges[v].push_back({0, v, 0});
+    }
+
     // Let's sort these edges so the lowest-cost is always at the front
     for (int v = 1; v < num_vertices+1; v++) {
         std::sort(all_edges[v].begin(), all_edges[v].end(), [](edge a, edge b) {return a.cost < b.cost; });
@@ -175,13 +181,13 @@ int main() {
     //std::array<double, 3> best_values = {std::numeric_limits<double>::infinity()};
     edge best_edge = {INT_MAX};
 
+
+
     for (int v = 1; v < num_vertices+1; v++) {
         std::cout << "Checking vertex " << v << std::endl;
         edge current_edge = bellmanFord(v);
-        /*
-        std::cout << current_edge.source << " " <<current_edge.end << " " 
-        << current_edge.cost << std::endl;
-        */
+        // std::cout << current_edge.source << " " <<current_edge.end << " " 
+        // << current_edge.cost << std::endl;
         if (current_edge.source == -1 ) {
             std::cout << "NULL" << std::endl;
             return 1;
@@ -190,6 +196,8 @@ int main() {
             best_edge = current_edge;
         }
     }
+
+    
 
     std::cout << "BEST two pair: " << best_edge.source << " , " << best_edge.end << std::endl;
     std::cout << "BEST cost: " << best_edge.cost << std::endl;
@@ -202,3 +210,39 @@ int main() {
 
     return 0;
 }
+
+/*
+The following subroutine takes in  the following: 
+    - Key value pair of schema:
+    {
+        int vertex : std:vector < std::array<double, 3> edge > edges
+    }
+    - An array of n length specifying the cost from the souce vertex V (set at 1)
+    and every other vertex
+and returns a:
+    - Key value pair of that exact same schema.
+
+How this subroutine works:
+
+ Run through every vertex's edges. For each edge that points to it, it
+
+Consider a path s-v. Each vertex has weight w_v.
+For each edge from e that starts from a t and ends at u, add to the edge w_t - w_u.
+This way, path length is invariant: the final path length is reweighted by w_s - w_v
+
+We have a "fake" source vertex 
+
+*/
+
+auto johnsons (std::map<int, vector_of_edges> edges, int weights[3000] ) {
+
+    for (auto &edges_from_v : edges) {
+        for (auto &edge : edges_from_v.second) {
+            edge.cost += weights[edge.source] - weights[edge.end];
+        }
+    }
+
+    return edges;
+}
+
+// Dijkstra's -- depth-first search
