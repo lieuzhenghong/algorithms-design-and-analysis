@@ -61,6 +61,50 @@ int costs[3000][3000] {INT_MAX};
 //double costs[3000][3000] {std::numeric_limits<double>::infinity()};
 std::map<int, vector_of_edges> all_edges;
 
+/*
+The following subroutine takes in  the following: 
+    - Key value pair of schema:
+    {
+        int vertex : std:vector < std::array<double, 3> edge > edges
+    }
+    - An array of n length specifying the cost from the souce vertex V (set at 1)
+    and every other vertex
+and returns a:
+    - Key value pair of that exact same schema.
+
+How this subroutine works:
+
+ Run through every vertex's edges. For each edge that points to it, it
+
+Consider a path s-v. Each vertex has weight w_v.
+For each edge from e that starts from a t and ends at u, add to the edge w_t - w_u.
+This way, path length is invariant: the final path length is reweighted by w_s - w_v
+
+We have a "fake" source vertex 
+
+*/
+
+auto johnsons (std::map<int, vector_of_edges> edges, int weights[3000] ) {
+
+    for (auto &edges_from_v : edges) {
+        for (auto &edge : edges_from_v.second) {
+            std::cout << "Old edge " << edge.source << " " <<edge.end << " " << edge.cost << std::endl;
+            //std::cout << "Source edge weight: " << weights[edge.source] << std::endl;;
+            //std::cout << "Destin edge weight: " << weights[edge.end] << std::endl;;
+            edge.cost += weights[edge.source] - weights[edge.end];
+            std::cout << "New edge " << edge.source << " " <<edge.end << " " << edge.cost << std::endl;
+        }
+    }
+
+    return edges;
+}
+
+// Dijkstra's -- depth-first search
+auto dijkstras (std::map<int, vector_of_edges> edges) {
+
+}
+
+
 edge bellmanFord(int vertex_source) {
 
     for (int i = 0; i < 3000; i++) {
@@ -71,7 +115,7 @@ edge bellmanFord(int vertex_source) {
 
     edge best_edge = {0, 0, INT_MAX};
 
-    for (int i = 0; i < num_vertices; i++) {
+    for (int i = 0; i < num_vertices+1; i++) {
         for (int v = 0; v < num_vertices+1; v++) {
             /*
             std::cout << "Currently considering the path from node " <<
@@ -91,8 +135,8 @@ edge bellmanFord(int vertex_source) {
                 /*
                 std::cout << "Current cost for pair" << vertex_source << v <<
                 costs[i][v] << std::endl;
-                std::cout << "Min cost: " << costs[i-1][v] << std::endl;
                 */
+                //std::cout << "Min cost: " << costs[i-1][v] << std::endl;
 
                auto min_cost = prev_cost;
 
@@ -112,8 +156,7 @@ edge bellmanFord(int vertex_source) {
                         if (min_cost < best_edge.cost) {
                             /*
                             std::cout << "Best edge found!" << vertex_source << " " << v 
-                            << " " <<min_cost
-                            << std::endl;
+                            << " " <<min_cost << std::endl;
                             */
                             best_edge = {vertex_source, v, min_cost};
                         }
@@ -121,13 +164,14 @@ edge bellmanFord(int vertex_source) {
                 }
                 costs[i][v] = min_cost;
                 //std::cout << "Best cost: " << costs[i][v] << std::endl;
+                //std::cout << "Best cost: " << costs[num_vertices-1][v] << std::endl;
             }
         }
     }
 
     // run again to check for negative cycles
     for (int v = 0; v < num_vertices; v++) {
-        int i = num_vertices;
+        int i = num_vertices+1;
         // For all edges that point to the vertex
         for (auto edge : all_edges[v]) {
             if (costs[i-1][edge.source] != INT_MAX && 
@@ -179,10 +223,11 @@ int main() {
 
     // We run Bellman-Ford's algorithm n times to final the shortest pair ever
     //std::array<double, 3> best_values = {std::numeric_limits<double>::infinity()};
-    edge best_edge = {INT_MAX};
+    edge best_edge = {INT_MAX, INT_MAX, INT_MAX};
 
 
 
+/*
     for (int v = 1; v < num_vertices+1; v++) {
         std::cout << "Checking vertex " << v << std::endl;
         edge current_edge = bellmanFord(v);
@@ -196,8 +241,22 @@ int main() {
             best_edge = current_edge;
         }
     }
+    */
 
-    
+    edge current_edge = bellmanFord(0);
+    std::cout << current_edge.source << " " <<current_edge.end << " " 
+    << current_edge.cost << std::endl;
+
+    if (current_edge.source == -1 ) {
+        std::cout << "NULL" << std::endl;
+        return 1;
+    }
+    else if (current_edge.cost < best_edge.cost) {
+        best_edge = current_edge;
+    }
+
+    all_edges = johnsons(all_edges, costs[num_vertices]);
+
 
     std::cout << "BEST two pair: " << best_edge.source << " , " << best_edge.end << std::endl;
     std::cout << "BEST cost: " << best_edge.cost << std::endl;
@@ -210,39 +269,3 @@ int main() {
 
     return 0;
 }
-
-/*
-The following subroutine takes in  the following: 
-    - Key value pair of schema:
-    {
-        int vertex : std:vector < std::array<double, 3> edge > edges
-    }
-    - An array of n length specifying the cost from the souce vertex V (set at 1)
-    and every other vertex
-and returns a:
-    - Key value pair of that exact same schema.
-
-How this subroutine works:
-
- Run through every vertex's edges. For each edge that points to it, it
-
-Consider a path s-v. Each vertex has weight w_v.
-For each edge from e that starts from a t and ends at u, add to the edge w_t - w_u.
-This way, path length is invariant: the final path length is reweighted by w_s - w_v
-
-We have a "fake" source vertex 
-
-*/
-
-auto johnsons (std::map<int, vector_of_edges> edges, int weights[3000] ) {
-
-    for (auto &edges_from_v : edges) {
-        for (auto &edge : edges_from_v.second) {
-            edge.cost += weights[edge.source] - weights[edge.end];
-        }
-    }
-
-    return edges;
-}
-
-// Dijkstra's -- depth-first search
