@@ -308,41 +308,15 @@ int main() {
         std::sort(all_edges[v].begin(), all_edges[v].end(), [](edge a, edge b) {return a.cost < b.cost; });
     }
 
-    // We run Bellman-Ford's algorithm n times to final the shortest pair ever
-    //std::array<double, 3> best_values = {std::numeric_limits<double>::infinity()};
     edge best_edge = {INT_MAX, INT_MAX, INT_MAX};
-
-
-
-/*
-    for (int v = 1; v < num_vertices+1; v++) {
-        std::cout << "Checking vertex " << v << std::endl;
-        edge current_edge = bellmanFord(v);
-        // std::cout << current_edge.source << " " <<current_edge.end << " " 
-        // << current_edge.cost << std::endl;
-        if (current_edge.source == -1 ) {
-            std::cout << "NULL" << std::endl;
-            return 1;
-        }
-        else if (current_edge.cost < best_edge.cost) {
-            best_edge = current_edge;
-        }
-    }
-    */
-
     edge current_edge = bellmanFord(0);
     std::cout << current_edge.source << " " <<current_edge.end << " " 
     << current_edge.cost << std::endl;
 
-    /*
     if (current_edge.source == -1 ) {
         std::cout << "NULL" << std::endl;
         return 1;
     }
-    else if (current_edge.cost < best_edge.cost) {
-        best_edge = current_edge;
-    }
-    */
 
     johnsons(all_edges, costs[num_vertices]);
 
@@ -350,8 +324,8 @@ int main() {
         current_edge = dijkstras(i, all_edges_leading_out_of);
         current_edge.cost += costs[num_vertices][current_edge.end] -
         costs[num_vertices][current_edge.source];
-        std::cout << "Best pair: " << current_edge.source << " " <<current_edge.end << " " 
-        << current_edge.cost << std::endl;
+        //std::cout << "Best pair: " << current_edge.source << " " <<current_edge.end << " " 
+        // << current_edge.cost << std::endl;
         
         if (current_edge.cost < best_edge.cost) {
             best_edge = current_edge;

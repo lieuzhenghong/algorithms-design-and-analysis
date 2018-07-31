@@ -5,7 +5,6 @@
 #include <map>
 #include <algorithm>
 #include <chrono>
-#include <queue>
 #include <climits>
 
 /*
@@ -61,148 +60,18 @@ int costs[3000][3000] {INT_MAX};
 
 //double costs[3000][3000] {std::numeric_limits<double>::infinity()};
 std::map<int, vector_of_edges> all_edges;
-std::map<int, vector_of_edges> all_edges_leading_out_of;
 
-/*
-The following subroutine takes in  the following: 
-    - Key value pair of schema:
-    {
-        int vertex : std:vector < std::array<double, 3> edge > edges
-    }
-    - An array of n length specifying the cost from the souce vertex V (set at 1)
-    and every other vertex
-and returns a:
-    - Key value pair of that exact same schema.
-
-How this subroutine works:
-
- Run through every vertex's edges. For each edge that points to it, it
-
-Consider a path s-v. Each vertex has weight w_v.
-For each edge from e that starts from a t and ends at u, add to the edge w_t - w_u.
-This way, path length is invariant: the final path length is reweighted by w_s - w_v
-
-We have a "fake" source vertex 
-
-*/
-
-auto johnsons (std::map<int, vector_of_edges> edges, int weights[3000] ) 
-{
-    for (auto &edges_from_v : edges) 
-    {
-        edge e;
-        for (auto &edge : edges_from_v.second)
-        {
-            /*
-            std::cout << "Old edge " << edge.source << " " <<edge.end << " " << edge.cost << std::endl;
-            std::cout << "Source edge weight: " << weights[edge.source] << std::endl;;
-            std::cout << "Destin edge weight: " << weights[edge.end] << std::endl;;
-            */
-
-            /*
-            std::cout << "New edge " << edge.source << " " <<edge.end << " " << 
-            edge.cost + weights[edge.source] - weights[edge.end]
-            << std::endl;
-            */
-
-            e = {edge.source, edge.end, (edge.cost + weights[edge.source] - weights[edge.end])};
-            
-            all_edges_leading_out_of[edge.source].push_back(e);
-        }
-    }
-    return all_edges_leading_out_of;
-}
-
-// Dijkstra's -- depth-first search
-/*
-    Algorithm as follows. Start with a source vertex in discovered.
-    Whiel discovered =/= the entire graph,
-    look at the smallest
-*/
-auto cmp (edge a, edge b) {
-    return a.cost > b.cost;
-}
- 
-auto dijkstras (int start, std::map<int, vector_of_edges> &edges) 
-{
-
-    int edge_costs[3000];
-    bool discovered[3000];
-    std::cout << "Running Dijkstra's from source vertex " << start << std::endl;
+edge bellmanFord(int vertex_source) {
 
     for (int i = 0; i < 3000; i++) {
-        edge_costs[i] = INT_MAX;
-    }
-    edge_costs[start] = 0;
-
-    std::priority_queue <edge, std::vector<edge>, decltype(&cmp)> vertex_distances(cmp);
-
-    for (auto &edge : edges[start])
-    {
-        //std::cout << "Pushing " << edge.source << " " << edge.end << " " << edge.cost << " " <<std::endl;
-        vertex_distances.push(edge);
-        int new_dist = edge_costs[edge.source] + edge.cost;
-        if (edge_costs[edge.end] > new_dist) { 
-            edge_costs[edge.end] = new_dist; 
-            /*
-            std::cout << "New distance for vertex " << edge.end << " : " << 
-            edge_costs[edge.end] << std::endl;
-            */
-        }
-    }
-
-    // The new neighbour is the one at the top
-    while (!vertex_distances.empty())
-    {
-
-        /*
-        std::cout << "Vertex dist " << vertex_distances.top().source << " " 
-        << vertex_distances.top().end << " "
-        << vertex_distances.top().cost << std::endl;
-        */
-
-        int new_neighbour = vertex_distances.top().end;
-        vertex_distances.pop();
-        discovered[new_neighbour] = true;
-        for (auto &edge : edges[new_neighbour])
-        {
-            // do the exact same thing
-            int new_dist = edge_costs[edge.source] + edge.cost;
-            if (edge_costs[edge.end] > new_dist) 
-            { 
-                edge_costs[edge.end] = new_dist; 
-                vertex_distances.push( {edge.source, edge.end, edge_costs[edge.end]} );
-                /*
-                std::cout << "Pushing " << edge.source << " " <<
-                edge.end << " " << edge_costs[edge.end] << " " <<std::endl;
-                */
-            }
-        }
-    }
-
-    edge best_edge = {start, start, INT_MAX};
-    for (int i = 0; i < num_vertices+1; i++) {
-        //std::cout << "Edge cost for " << i << " : " << edge_costs[i] << std::endl;
-        if (edge_costs[i] < best_edge.cost && i != start) {
-            best_edge = {start, i, edge_costs[i]};
-        }
-    }
-
-    return best_edge;
-}
-
-
-edge bellmanFord(int vertex_source) 
-{
-    for (int i = 0; i < 3000; i++) 
-    {
-        for (int j = 0; j < 3000; j++) 
-        {
+        for (int j = 0; j < 3000; j++) {
             costs[i][j] = INT_MAX;
         }
     }
+
     edge best_edge = {0, 0, INT_MAX};
-    for (int i = 0; i < num_vertices+1; i++) {
+
+    for (int i = 0; i < num_vertices; i++) {
         for (int v = 0; v < num_vertices+1; v++) {
             /*
             std::cout << "Currently considering the path from node " <<
@@ -222,8 +91,8 @@ edge bellmanFord(int vertex_source)
                 /*
                 std::cout << "Current cost for pair" << vertex_source << v <<
                 costs[i][v] << std::endl;
+                std::cout << "Min cost: " << costs[i-1][v] << std::endl;
                 */
-                //std::cout << "Min cost: " << costs[i-1][v] << std::endl;
 
                auto min_cost = prev_cost;
 
@@ -243,7 +112,8 @@ edge bellmanFord(int vertex_source)
                         if (min_cost < best_edge.cost) {
                             /*
                             std::cout << "Best edge found!" << vertex_source << " " << v 
-                            << " " <<min_cost << std::endl;
+                            << " " <<min_cost
+                            << std::endl;
                             */
                             best_edge = {vertex_source, v, min_cost};
                         }
@@ -251,14 +121,13 @@ edge bellmanFord(int vertex_source)
                 }
                 costs[i][v] = min_cost;
                 //std::cout << "Best cost: " << costs[i][v] << std::endl;
-                //std::cout << "Best cost: " << costs[num_vertices-1][v] << std::endl;
             }
         }
     }
 
     // run again to check for negative cycles
     for (int v = 0; v < num_vertices; v++) {
-        int i = num_vertices+1;
+        int i = num_vertices;
         // For all edges that point to the vertex
         for (auto edge : all_edges[v]) {
             if (costs[i-1][edge.source] != INT_MAX && 
@@ -297,12 +166,6 @@ int main() {
         //std::cout << e[0] << " " << e[1] << " " << e[2] << std::endl;
     }
 
-
-    // Also, let's push 0-cost edges to every vertex
-    for (int v = 0; v < num_vertices+1; v++) {
-        all_edges[v].push_back({0, v, 0});
-    }
-
     // Let's sort these edges so the lowest-cost is always at the front
     for (int v = 1; v < num_vertices+1; v++) {
         std::sort(all_edges[v].begin(), all_edges[v].end(), [](edge a, edge b) {return a.cost < b.cost; });
@@ -310,16 +173,15 @@ int main() {
 
     // We run Bellman-Ford's algorithm n times to final the shortest pair ever
     //std::array<double, 3> best_values = {std::numeric_limits<double>::infinity()};
-    edge best_edge = {INT_MAX, INT_MAX, INT_MAX};
+    edge best_edge = {INT_MAX};
 
-
-
-/*
     for (int v = 1; v < num_vertices+1; v++) {
         std::cout << "Checking vertex " << v << std::endl;
         edge current_edge = bellmanFord(v);
-        // std::cout << current_edge.source << " " <<current_edge.end << " " 
-        // << current_edge.cost << std::endl;
+        /*
+        std::cout << current_edge.source << " " <<current_edge.end << " " 
+        << current_edge.cost << std::endl;
+        */
         if (current_edge.source == -1 ) {
             std::cout << "NULL" << std::endl;
             return 1;
@@ -328,36 +190,6 @@ int main() {
             best_edge = current_edge;
         }
     }
-    */
-
-    edge current_edge = bellmanFord(0);
-    std::cout << current_edge.source << " " <<current_edge.end << " " 
-    << current_edge.cost << std::endl;
-
-    /*
-    if (current_edge.source == -1 ) {
-        std::cout << "NULL" << std::endl;
-        return 1;
-    }
-    else if (current_edge.cost < best_edge.cost) {
-        best_edge = current_edge;
-    }
-    */
-
-    johnsons(all_edges, costs[num_vertices]);
-
-    for (int i = 1; i < num_vertices+1; i++) {
-        current_edge = dijkstras(i, all_edges_leading_out_of);
-        current_edge.cost += costs[num_vertices][current_edge.end] -
-        costs[num_vertices][current_edge.source];
-        std::cout << "Best pair: " << current_edge.source << " " <<current_edge.end << " " 
-        << current_edge.cost << std::endl;
-        
-        if (current_edge.cost < best_edge.cost) {
-            best_edge = current_edge;
-        }
-    }
-
 
     std::cout << "BEST two pair: " << best_edge.source << " , " << best_edge.end << std::endl;
     std::cout << "BEST cost: " << best_edge.cost << std::endl;
