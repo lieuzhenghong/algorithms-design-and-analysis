@@ -10,16 +10,16 @@ I got the test cases from [Beau Dobbin's repository](https://github.com/beaunus/
 # Progress
 
 ## Course 1
-- Assignment 1: 
-- Assignment 2: 
-- Assignment 3: 
-- Assignment 4: 
+- Assignment 1: Karatsuba multiplication, 1/1 completed
+- Assignment 2: Inversions, 1/1 completed
+- Assignment 3: Quicksort choice of pivot, 0/3 completed
+- Assignment 4: Karger's Min Cut, 1/1 completed
 
 ## Course 2
-- Assignment 1: 
-- Assignment 2: 
-- Assignment 3: 
-- Assignment 4: 
+- Assignment 1: Strongly connected components, 0/1 completed
+- Assignment 2: Dijkstra's algorithm, 1/1 completed
+- Assignment 3: Median maintenance, 1/1 completed
+- Assignment 4: 2-SUM, 1/1 completed
 
 ## Course 3
 - Assignment 1: Weighted Completion Times, 3/3 completed
