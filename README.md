@@ -31,4 +31,4 @@ I got the test cases from [Beau Dobbin's repository](https://github.com/beaunus/
 - Assignment 1: All Pairs Shortest Path, 3/3 completed 
 - Assignment 2: Traveling Salesman Problem, 0/1 completed
 - Assignment 3: TSP Heuristic, 1/1 completed
-- Assignment 4: 2SAT, 0/1 completed
+- Assignment 4: 2SAT, 1/1 completed
