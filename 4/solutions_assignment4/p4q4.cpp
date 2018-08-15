@@ -33,10 +33,12 @@ for example, for more details.
 */
 #include <iostream>
 #include <vector>
+#include <array>
 #include <map>
 #include <set>
 #include <stack>
 #include <climits>
+#include <chrono>
 
 typedef std::set<int> edges;
 std::map<int, edges> all_edges;
@@ -44,7 +46,7 @@ int num_edges;
 
 void dfs_stack(int start,
                std::map<int, edges> &all_edges,
-               std::array<bool, 100000> &visited,
+               std::map<int, bool> &visited,
                std::stack<int> &stack)
 {
     visited[start] = true;
@@ -53,16 +55,18 @@ void dfs_stack(int start,
     {
         if (!visited[edge])
         {
+            //std::cout << "Visiting edge " << edge << std::endl;
             dfs_stack(edge, all_edges, visited, stack);
         }
     }
 
     stack.push(start);
+    //std::cout << "Pushed vertex " << start << " onto stack" << std::endl;
 }
 
 void dfs_scc(int start,
              std::map<int, edges> &all_edges,
-             std::array<bool, 100000> &visited,
+             std::map<int, bool> &visited,
              edges &scc)
 {
     visited[start] = true;
@@ -70,10 +74,12 @@ void dfs_scc(int start,
     {
         if (!visited[edge])
         {
+            //std::cout << "Visiting node " << edge << " from " << start << std::endl;
             dfs_scc(edge, all_edges, visited, scc);
         }
     }
 
+    //std::cout << "Inserting node " << start << std::endl;
     scc.insert(start);
 }
 
@@ -85,13 +91,20 @@ auto kosaraju(std::map<int, edges> all_edges)
     std::map<int, edges> reverse_graph;
     std::vector<edges> sccs;
     std::stack<int> stack;
-    std::array<bool, 100000> visited = {0};
+    std::map<int, bool> visited;
 
-    // Forward path of DFS
-    for (int i = 1; i <= num_edges; i++)
+    for (auto &kv : all_edges)
     {
-        dfs_stack(i, all_edges, visited, stack);
+        //std::cout << "Now examining node " << kv.first << " which has visited: " << visited[kv.first] << std::endl;
+
+        if (!(visited[kv.first]))
+        {
+            dfs_stack(kv.first, all_edges, visited, stack);
+            //std::cout << visited[kv.first] << std::endl;
+        }
     }
+
+    std::cout << "Forward pass complete" << std::endl;
 
     // Generate the reverse graph
     for (auto &kv : all_edges)
@@ -104,55 +117,80 @@ auto kosaraju(std::map<int, edges> all_edges)
 
     // Backward DFS starting from the top of the stack
     // Reset the visited array
-    for (bool b : visited)
+
+    std::cout << " === BACKWARD DFS === " << std::endl;
+    for (auto &kv : visited)
     {
-        b = false;
+        kv.second = false;
     }
     while (!stack.empty())
     {
         int v = stack.top();
-        std::cout << "int v: " << v << std::endl;
+        //std::cout << "Now examining node: " << v << std::endl;
         stack.pop();
         if (!visited[v])
         {
             edges scc;
+            //std::cout << "Now visiting node: " << v << std::endl;
             dfs_scc(v, reverse_graph, visited, scc);
+            //std::cout << "SCC of vertex " << v << std::endl;
+            /*
+            for (auto &e : scc)
+            {
+                std::cout << e << " ";
+            }
+            std::cout << std::endl;
+            */
             sccs.push_back(scc);
         }
     }
 
+    std::cout << "Kosaraju's algorithm finished" << std::endl;
     return sccs;
+}
+
+void generate_adjacency_list(int v1, int v2)
+{
+    all_edges[-v1].insert(v2);
+    all_edges[-v2].insert(v1);
 }
 
 int main()
 {
-    // generate adjacency list
+    std::ios_base::sync_with_stdio(false);
+    auto time_started = std::chrono::steady_clock::now();
     int v1, v2;
+
     std::cin >> num_edges;
     while (std::cin >> v1 >> v2)
     {
-        all_edges[v1].insert(v2);
-        all_edges[v2].insert(v1);
+        //all_edges[v1].insert(v2);
+        generate_adjacency_list(v1, v2);
     }
 
-    // run tarjan's SCCs on this adjacency list
     std::vector<edges> sccs = kosaraju(all_edges);
 
-    // Check all SCCs: for every SCC, check that there are no occurrences of
-    // its negation (for any V, check that -V not in SCC)
     for (auto &scc : sccs)
     {
+        //std::cout << "New SCC: ";
         for (auto &v : scc)
         {
-            std::cout << -v;
+            // If we can find, terminate
             if (scc.find(-v) != scc.end())
             {
-                std::cout << "1";
+                std::cout << "We have found a SCC that clashes, unsatisfiable!";
+                auto time_ended = std::chrono::steady_clock::now();
+                std::cout << std::endl
+                          << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(time_ended - time_started).count() << std::endl;
                 return 1;
             }
         }
+        //std::cout << std::endl;
     }
+    std::cout << "Satisfiable";
+    auto time_ended = std::chrono::steady_clock::now();
+    std::cout << std::endl
+              << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(time_ended - time_started).count() << std::endl;
 
-    std::cout << "0";
     return 0;
 }
