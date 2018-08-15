@@ -1,36 +1,3 @@
-/*
-In this assignment you will implement one or more algorithms for the 2SAT
-problem.
-
-The file format is as follows. The number of variables and the number of
-clauses is the same, and this number is specified on the first line of the
-file. Each subsequent line specifies a clause via its two literals, with a
-number denoting the variable and a "-" sign denoting logical "not". For
-example, the second line of the first data file is "-16808 75250", which
-indicates the clause ¬_x_<sub>16808</sub> <sup>V</sup> _x_<sub>75250</sub>.
-
-Your task is to determine if the instances is satisfiable or not. submit a 1
-if the instance is satisfiable, and 0 otherwise.
-
-DISCUSSION: This assignment is deliberately open-ended, and you can implement
-whichever 2SAT algorithm you want. For example, 2SAT reduces to computing the
-strongly connected components of a suitable graph (with two vertices per
-variable and two directed edges per clause, you should think through the
-details). This might be an especially attractive option for those of you who
-coded up an SCC algorithm in Part 2 of this specialization. Alternatively,
-you can use Papadimitriou's randomized local search algorithm. (The algorithm
-from lecture is probably too slow as stated, so you might want to make one or
-more simple modifications to it --- even if this means breaking the analysis
-given in lecture --- to ensure that it runs in a reasonable amount of time.)
-A third approach is via backtracking. In lecture we mentioned this approach
-only in passing; see Chapter 9 of the Dasgupta-Papadimitriou-Vazirani book,
-for example, for more details.
-*/
-/*
-1. Generate the adjacency list 
-2. Run Tarjan's SCC algorithm on the adjacency list
-3. Examine all of the SCCs. If any SCC contains -A and A, the instance is unsatisfiable.
-*/
 #include <iostream>
 #include <vector>
 #include <array>
@@ -38,6 +5,7 @@ for example, for more details.
 #include <set>
 #include <stack>
 #include <climits>
+#include <queue>
 #include <chrono>
 
 typedef std::set<int> edges;
@@ -84,7 +52,7 @@ void dfs_scc(int start,
     scc.insert(start);
 }
 
-auto kosaraju(std::map<int, edges> all_edges)
+auto kosaraju(std::map<int, edges> &all_edges)
 {
     // Two passes of DFS.
     // First pass get stack
@@ -156,46 +124,52 @@ auto kosaraju(std::map<int, edges> all_edges)
     return sccs;
 }
 
-void generate_adjacency_list(int v1, int v2)
-{
-    all_edges[-v1].insert(v2);
-    all_edges[-v2].insert(v1);
-}
-
 int main()
 {
     std::ios_base::sync_with_stdio(false);
     int v1, v2;
-    std::cin >> num_edges;
+    std::priority_queue<int> five_largest_sccs;
+
     while (std::cin >> v1 >> v2)
     {
-        //all_edges[v1].insert(v2);
-        generate_adjacency_list(v1, v2);
+        all_edges[v1].insert(v2);
     }
 
     std::vector<edges> sccs = kosaraju(all_edges);
 
     for (auto &scc : sccs)
     {
-        //std::cout << "New SCC: ";
+        /*
+        std::cout << "New SCC: ";
         for (auto &v : scc)
         {
-            // If we can find, terminate
-            if (scc.find(-v) != scc.end())
-            {
-                std::cout << "We have found a SCC that clashes, unsatisfiable!";
-                auto time_ended = std::chrono::steady_clock::now();
-                std::cout << std::endl
-                          << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(time_ended - time_started).count() << std::endl;
-                return 1;
-            }
+            std::cout << v << " ";
         }
-        //std::cout << std::endl;
+        std::cout << std::endl;
+        //std::cout << "Size of SCC: " << scc.size() << std::endl;
+        */
+        five_largest_sccs.push(scc.size());
     }
-    std::cout << "Satisfiable";
+
+    // Print out 5 largest SCCs
+    std::cout << "Five largest SCCS: ";
+    for (int i = 0; i < 5; i++)
+    {
+        if (five_largest_sccs.empty())
+        {
+            std::cout << "0";
+        }
+        else
+        {
+            std::cout << five_largest_sccs.top() << " ";
+            five_largest_sccs.pop();
+        }
+    }
+
     auto time_ended = std::chrono::steady_clock::now();
     std::cout << std::endl
-              << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(time_ended - time_started).count() << std::endl;
+              << "Time difference = "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(time_ended - time_started).count();
 
     return 0;
 }
