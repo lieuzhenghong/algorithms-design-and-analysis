@@ -25,7 +25,9 @@ I got the test cases from [Beau Dobbin's repository](https://github.com/beaunus/
 ## Course 3
 - Assignment 1: Weighted Completion Times, 3/3 completed
 - **Assignment 2: Clustering, 1/2 completed**
-- **Assignment 3: Huffman Coding and Maximum-Weight Independent Set, 0/2 completed**
+- Assignment 3: Huffman Coding and Maximum-Weight Independent Set, 3/3 completed
+    * A very odd bug: gives wrong answer for input sizes 4000 and above (test cases 37--48).
+    * But the assignment only gives an input size of 1000, so we're free and clear...???
 - **Assignment 4: Knapsack, 0/3 completed**
 
 ## Course 4
