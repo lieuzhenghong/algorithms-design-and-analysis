@@ -12,7 +12,7 @@ I got the test cases from [Beau Dobbin's repository](https://github.com/beaunus/
 ## Course 1
 - Assignment 1: Karatsuba multiplication, 1/1 completed
 - Assignment 2: Inversions, 1/1 completed
-- **Assignment 3: Quicksort choice of pivot, 0/3 completed**
+- Assignment 3: Quicksort choice of pivot, 3/3 completed *(completed 7th September 2018)*
 - Assignment 4: Karger's Min Cut, 1/1 completed
 
 ## Course 2
