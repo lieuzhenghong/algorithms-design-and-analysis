@@ -28,7 +28,7 @@ I got the test cases from [Beau Dobbin's repository](https://github.com/beaunus/
 - Assignment 3: Huffman Coding and Maximum-Weight Independent Set, 3/3 **(completed 20th August 2018)**
     * A very odd bug: gives wrong answer for input sizes 4000 and above (test cases 37--48).
     * But the assignment only gives an input size of 1000, so we're free and clear...???
-- **Assignment 4: Knapsack, 1/2 completed** (completed 31st August 2018)
+- Assignment 4: Knapsack, 2/2 completed **(completed 31st August, 9th September 2018)**
 
 ## Course 4
 - Assignment 1: All Pairs Shortest Path, 3/3 **(completed 29th July 2018)**
